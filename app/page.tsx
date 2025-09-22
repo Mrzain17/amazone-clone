@@ -7,7 +7,7 @@ import Link from "next/link"
 const featuredProducts = [
   {
     id: "1",
-    title: "Wireless Headphones with Noise Cancellation",
+    title: "Wireless Bluetooth Headphones with Noise Cancellation",
     price: 79.99,
     originalPrice: 129.99,
     rating: 4.5,
