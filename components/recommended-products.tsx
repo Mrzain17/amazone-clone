@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/product-card"
 const recommendedProducts = [
   {
     id: "7",
-    title: "Wireless Gaming Mouse with RGB Lighting",
+    title: "Wireless Bluetooth Gaming Mouse with RGB Lighting",
     price: 59.99,
     rating: 4.5,
     reviewCount: 789,
