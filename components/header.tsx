@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Search, ShoppingCart, User, Menu, LogOut } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, LogOut, Package, Heart, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -82,13 +82,84 @@ export function Header() {
                   Categories
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Electronics")}>Electronics</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Home & Garden")}>Home & Garden</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Sports")}>Sports</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Books")}>Books</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Clothing")}>Clothing</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleCategoryClick("Beauty")}>Beauty</DropdownMenuItem>
+              <DropdownMenuContent className="w-80 p-4">
+                <div className="space-y-4">
+                  {/* Browse All Categories Link */}
+                  <div className="pb-2 border-b border-border">
+                    <Link href="/categories" className="block">
+                      <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors">
+                        <span className="font-semibold text-primary">Browse All Categories</span>
+                        <span className="text-xs text-muted-foreground">→</span>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Popular Categories Section */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 px-2">Popular Categories</h4>
+                    <div className="grid grid-cols-2 gap-1">
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Electronics")}
+                        className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted"
+                      >
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span>Electronics</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Fashion")}
+                        className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted"
+                      >
+                        <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                        <span>Fashion</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Home & Garden")}
+                        className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted"
+                      >
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>Home & Garden</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Sports")}
+                        className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted"
+                      >
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span>Sports</span>
+                      </DropdownMenuItem>
+                    </div>
+                  </div>
+
+                  {/* More Categories Section */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 px-2">More Categories</h4>
+                    <div className="space-y-1">
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Books")}
+                        className="p-2 rounded-md hover:bg-muted"
+                      >
+                        Books & Media
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Beauty")}
+                        className="p-2 rounded-md hover:bg-muted"
+                      >
+                        Beauty & Personal Care
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Automotive")}
+                        className="p-2 rounded-md hover:bg-muted"
+                      >
+                        Automotive
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleCategoryClick("Health")}
+                        className="p-2 rounded-md hover:bg-muted"
+                      >
+                        Health & Wellness
+                      </DropdownMenuItem>
+                    </div>
+                  </div>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -109,20 +180,41 @@ export function Header() {
                     <span className="hidden sm:inline">{user.name.split(" ")[0]}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="flex items-center w-full">
-                      <User className="h-4 w-4 mr-2" />
-                      Your Profile
-                    </Link>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm font-semibold">
+                    Hello, {user.name.split(" ")[0]}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/profile")}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Your Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/orders" className="flex items-center w-full">
-                      Your Orders
-                    </Link>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/profile?tab=orders")}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Your Orders
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/profile?tab=wishlist")}
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Your Wishlist
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/profile?tab=addresses")}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Your Addresses
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
@@ -131,18 +223,34 @@ export function Header() {
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="hover:bg-muted/50 transition-colors">
                     <User className="h-4 w-4 mr-2" />
                     Account
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>
-                    <Link href="/auth/signin">Sign In</Link>
+                <DropdownMenuContent className="w-56">
+                  <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                    Welcome to AmazonClone
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/auth/signin")}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Sign In
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/auth/signup">Sign Up</Link>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => router.push("/auth/signup")}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Create Account
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    Demo Account: demo@example.com / password123
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

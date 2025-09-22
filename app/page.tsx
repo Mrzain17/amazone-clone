@@ -7,7 +7,7 @@ import Link from "next/link"
 const featuredProducts = [
   {
     id: "1",
-    title: "Wireless Bluetooth Headphones with Noise Cancellation",
+    title: "Wireless Headphones with Noise Cancellation",
     price: 79.99,
     originalPrice: 129.99,
     rating: 4.5,
@@ -83,7 +83,7 @@ const featuredProducts = [
 const categories = [
   { name: "Electronics", image: "/electronics-gadgets.png", slug: "electronics" },
   { name: "Fashion", image: "/diverse-fashion-collection.png", slug: "clothing" },
-  { name: "Home & Garden", image: "/home-garden-decor.jpg", slug: "home-garden" },
+  { name: "Home", image: "/home-garden-decor.jpg", slug: "home" },
   { name: "Sports", image: "/assorted-sports-gear.png", slug: "sports" },
   { name: "Books", image: "/books-library.jpg", slug: "books" },
   { name: "Beauty", image: "/beauty-cosmetics.png", slug: "beauty" },
@@ -126,7 +126,7 @@ export default function HomePage() {
         <section className="py-12">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-8">Featured Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
@@ -238,7 +238,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-muted mt-8 pt-8 text-center text-sm">
-            <p>&copy; 2024 AmazonClone. All rights reserved.</p>
+            <p>&copy; 2025 AmazonClone. All rights reserved.</p>
           </div>
         </div>
       </footer>

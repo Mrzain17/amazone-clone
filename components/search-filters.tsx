@@ -19,7 +19,7 @@ interface SearchFiltersProps {
   onFiltersChange: (filters: any) => void
 }
 
-const categories = ["Electronics", "Home & Garden", "Sports", "Books", "Clothing", "Beauty"]
+const categories = ["Electronics", "Home", "Sports", "Books", "Clothing", "Beauty"]
 
 const brands = [
   "AudioTech",

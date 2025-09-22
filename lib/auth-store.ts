@@ -2,36 +2,23 @@
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-
-export interface User {
-  id: string
-  email: string
-  name: string
-  avatar?: string
-  createdAt: string
-}
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "./firebase"
+import { authService, UserProfile } from "./auth-service"
+import { isFirebaseConfigured } from "./firebase-config"
 
 interface AuthStore {
-  user: User | null
+  user: UserProfile | null
   isAuthenticated: boolean
+  isLoading: boolean
   signIn: (email: string, password: string) => Promise<boolean>
   signUp: (name: string, email: string, password: string) => Promise<boolean>
-  signOut: () => void
-  updateProfile: (updates: Partial<User>) => void
-}
-
-// Mock user database
-const mockUsers: Record<string, { password: string; user: User }> = {
-  "demo@example.com": {
-    password: "password123",
-    user: {
-      id: "1",
-      email: "demo@example.com",
-      name: "Demo User",
-      avatar: "/placeholder.svg?height=40&width=40",
-      createdAt: "2024-01-01T00:00:00Z",
-    },
-  },
+  signOut: () => Promise<void>
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>
+  resetPassword: (email: string) => Promise<void>
+  addAddress: (address: Omit<import("./auth-service").Address, "id">) => Promise<void>
+  updateAddress: (addressId: string, updates: Partial<import("./auth-service").Address>) => Promise<void>
+  updatePreferences: (preferences: Partial<import("./auth-service").UserPreferences>) => Promise<void>
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -39,74 +26,155 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       user: null,
       isAuthenticated: false,
+      isLoading: true,
 
       signIn: async (email: string, password: string) => {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        const userData = mockUsers[email]
-        if (userData && userData.password === password) {
+        try {
+          set({ isLoading: true })
+          const userProfile = await authService.signIn(email, password)
           set({
-            user: userData.user,
+            user: userProfile,
             isAuthenticated: true,
+            isLoading: false,
           })
           return true
+        } catch (error) {
+          set({ isLoading: false })
+          console.error("Sign in error:", error)
+          throw error
         }
-        return false
       },
 
       signUp: async (name: string, email: string, password: string) => {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        // Check if user already exists
-        if (mockUsers[email]) {
-          return false
+        try {
+          set({ isLoading: true })
+          const userProfile = await authService.signUp(name, email, password)
+          set({
+            user: userProfile,
+            isAuthenticated: true,
+            isLoading: false,
+          })
+          return true
+        } catch (error) {
+          set({ isLoading: false })
+          console.error("Sign up error:", error)
+          throw error
         }
-
-        // Create new user
-        const newUser: User = {
-          id: Date.now().toString(),
-          email,
-          name,
-          createdAt: new Date().toISOString(),
-        }
-
-        mockUsers[email] = {
-          password,
-          user: newUser,
-        }
-
-        set({
-          user: newUser,
-          isAuthenticated: true,
-        })
-        return true
       },
 
-      signOut: () => {
-        set({
-          user: null,
-          isAuthenticated: false,
-        })
+      signOut: async () => {
+        try {
+          await authService.signOut()
+          set({
+            user: null,
+            isAuthenticated: false,
+          })
+        } catch (error) {
+          console.error("Sign out error:", error)
+          throw error
+        }
       },
 
-      updateProfile: (updates: Partial<User>) => {
-        const currentUser = get().user
-        if (currentUser) {
-          const updatedUser = { ...currentUser, ...updates }
-          set({ user: updatedUser })
-
-          // Update in mock database
-          const userData = mockUsers[currentUser.email]
-          if (userData) {
-            userData.user = updatedUser
+      updateProfile: async (updates: Partial<UserProfile>) => {
+        try {
+          await authService.updateProfile(updates)
+          const currentUser = get().user
+          if (currentUser) {
+            set({
+              user: { ...currentUser, ...updates },
+            })
           }
+        } catch (error) {
+          console.error("Update profile error:", error)
+          throw error
+        }
+      },
+
+      resetPassword: async (email: string) => {
+        try {
+          await authService.resetPassword(email)
+        } catch (error) {
+          console.error("Reset password error:", error)
+          throw error
+        }
+      },
+
+      addAddress: async (address) => {
+        try {
+          await authService.addAddress(address)
+          // Refresh user data to get updated addresses
+          const userProfile = await authService.getCurrentUser()
+          if (userProfile) {
+            set({ user: userProfile })
+          }
+        } catch (error) {
+          console.error("Add address error:", error)
+          throw error
+        }
+      },
+
+      updateAddress: async (addressId, updates) => {
+        try {
+          await authService.updateAddress(addressId, updates)
+          // Refresh user data to get updated addresses
+          const userProfile = await authService.getCurrentUser()
+          if (userProfile) {
+            set({ user: userProfile })
+          }
+        } catch (error) {
+          console.error("Update address error:", error)
+          throw error
+        }
+      },
+
+      updatePreferences: async (preferences) => {
+        try {
+          await authService.updatePreferences(preferences)
+          const currentUser = get().user
+          if (currentUser) {
+            set({
+              user: {
+                ...currentUser,
+                preferences: { ...currentUser.preferences, ...preferences },
+              },
+            })
+          }
+        } catch (error) {
+          console.error("Update preferences error:", error)
+          throw error
         }
       },
     }),
     {
       name: "auth-storage",
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     },
   ),
 )
+
+// Initialize auth state listener
+if (typeof window !== "undefined" && auth && isFirebaseConfigured()) {
+  onAuthStateChanged(auth, async (firebaseUser) => {
+    if (firebaseUser) {
+      // User is signed in
+      try {
+        const userProfile = await authService.getCurrentUser()
+        if (userProfile) {
+          useAuthStore.setState({ user: userProfile, isAuthenticated: true, isLoading: false })
+        }
+      } catch (error) {
+        console.error("Error getting user profile:", error)
+        useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+      }
+    } else {
+      // User is signed out
+      useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false })
+    }
+  })
+} else if (typeof window !== "undefined") {
+  // Firebase not available, set loading to false
+  useAuthStore.setState({ isLoading: false })
+}

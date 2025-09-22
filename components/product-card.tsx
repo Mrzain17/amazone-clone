@@ -56,7 +56,7 @@ export function ProductCard({ id, title, price, originalPrice, rating, reviewCou
             </div>
 
             <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold text-primary">${price.toFixed(2)}</span>
+              <span className="text-xs font-bold text-primary">${price.toFixed(2)}</span>
               {originalPrice && (
                 <span className="text-sm text-muted-foreground line-through">${originalPrice.toFixed(2)}</span>
               )}
